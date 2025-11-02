@@ -36,29 +36,34 @@ class AdminActionLog(models.Model):
         return f"{self.user.username} - {self.action} ({self.timestamp.strftime('%Y-%m-%d %H:%M')})"
     
 class Participant(models.Model):
-    full_name = models.CharField(max_length=200)
-    nationality = models.CharField(max_length=100)
-    paid = models.BooleanField(default=False)
-    free_access = models.BooleanField(default=False)  # For Free Access
-    is_present = models.BooleanField(default=False)
+    full_name = models.CharField(max_length=200, db_index=True)
+    nationality = models.CharField(max_length=100, db_index=True)
+    paid = models.BooleanField(default=False, db_index=True)
+    free_access = models.BooleanField(default=False, db_index=True)
+    is_present = models.BooleanField(default=False, db_index=True)
 
 
     # MEALS FOR 7 DAYS
-    breakfast_day1 = models.BooleanField(default=False)
-    lunch_day1 = models.BooleanField(default=False)
-    breakfast_day2 = models.BooleanField(default=False)
-    lunch_day2 = models.BooleanField(default=False)
-    breakfast_day3 = models.BooleanField(default=False)
-    lunch_day3 = models.BooleanField(default=False)
-    breakfast_day4 = models.BooleanField(default=False)
-    lunch_day4 = models.BooleanField(default=False)
-    breakfast_day5 = models.BooleanField(default=False)
-    lunch_day5 = models.BooleanField(default=False)
-    breakfast_day6 = models.BooleanField(default=False)
-    lunch_day6 = models.BooleanField(default=False)
-    breakfast_day7 = models.BooleanField(default=False)
-    lunch_day7 = models.BooleanField(default=False)
-
+    breakfast_day1 = models.BooleanField(default=False,db_index=True)
+    lunch_day1 = models.BooleanField(default=False,db_index=True)
+    breakfast_day2 = models.BooleanField(default=False,db_index=True)
+    lunch_day2 = models.BooleanField(default=False,db_index=True)
+    breakfast_day3 = models.BooleanField(default=False,db_index=True)
+    lunch_day3 = models.BooleanField(default=False,db_index=True)
+    breakfast_day4 = models.BooleanField(default=False,db_index=True)
+    lunch_day4 = models.BooleanField(default=False,db_index=True)
+    breakfast_day5 = models.BooleanField(default=False,db_index=True)
+    lunch_day5 = models.BooleanField(default=False,db_index=True)
+    breakfast_day6 = models.BooleanField(default=False,db_index=True)
+    lunch_day6 = models.BooleanField(default=False,db_index=True)
+    breakfast_day7 = models.BooleanField(default=False,db_index=True)
+    lunch_day7 = models.BooleanField(default=False,db_index=True)
+    class Meta:
+        indexes = [
+            models.Index(fields=['paid', 'free_access']),
+            models.Index(fields=['nationality', 'paid']),
+            models.Index(fields=['is_present']),
+        ]
     created_at = models.DateTimeField(default=timezone.now)  # ← ADD THIS
     
     def __str__(self):

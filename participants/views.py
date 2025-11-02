@@ -14,6 +14,9 @@ from django.contrib.auth.models import User
 from .models import Participant, CustomUser, AdminActionLog  # ← THIS IS CRITICAL
 from django.core.paginator import Paginator
 from django.db import transaction
+from decouple import config
+
+HF_API_KEY = config('HF_API_KEY', default=None)
 
 # For AI report (if used)
 try:
@@ -278,7 +281,7 @@ def ai_report(request):
     """
     
     try:
-        client = InferenceClient(api_key="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")
+        client = InferenceClient(api_key=HF_API_KEY)
         response = client.chat.completions.create(
             model="deepseek-ai/DeepSeek-V3.2-Exp",
             messages=[{"role": "user", "content": prompt}],
