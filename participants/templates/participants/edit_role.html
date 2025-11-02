@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="page-title">✏️ Edit Role: {{ user_to_edit.username }}</h2>
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            <label>Role:</label>
+            <select name="role" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <option value="checkin_admin" {% if user_to_edit.role == 'checkin_admin' %}selected{% endif %}>Check-in Admin</option>
+                <option value="super_admin" {% if user_to_edit.role == 'super_admin' %}selected{% endif %}>Super Admin</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Role</button>
+        <a href="{% url 'admin_panel' %}" class="btn">← Cancel</a>
+    </form>
+</div>
+{% endblock %}

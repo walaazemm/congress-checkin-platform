@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Upload Participants{% endblock %}
+
+{% block content %}
+<h2 class="page-title" style="display: flex; align-items: center; gap: 12px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+    Upload Participants
+</h2>
+
+<div class="card">
+    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid #4CAF50;">
+        <strong>📋 File Requirements:</strong>
+        <ul style="margin-top: 8px; margin-bottom: 0;">
+            <li>Excel file (.xlsx format)</li>
+            <li>Must contain columns: <code>Full Name</code>, <code>Nationality</code>, <code>Payment Status</code></li>
+            <li>Payment Status values: <code>Paid</code>, <code>Free Access</code>, or <code>Unpaid</code></li>
+        </ul>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Choose Excel File</label>
+            <input 
+                type="file" 
+                name="excel_file" 
+                accept=".xlsx" 
+                required
+                style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem;"
+            >
+        </div>
+        
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button type="submit" class="btn btn-success" style="flex: 1; min-width: 150px; padding: 12px; font-size: 1.1rem;">
+                🚀 Upload & Import
+            </button>
+            <a href="{% url 'admin_panel' %}" class="btn" style="flex: 1; min-width: 150px; padding: 12px; font-size: 1.1rem; justify-content: center;">
+                ← Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

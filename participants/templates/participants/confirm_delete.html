@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="page-title">⚠️ Delete User?</h2>
+<div class="card" style="border-left: 4px solid #d32f2f;">
+    <p>Are you sure you want to delete <strong>{{ user_to_delete.username }}</strong>?</p>
+    <p style="color: #d32f2f; margin: 15px 0;"><strong>This action cannot be undone.</strong></p>
+    
+    <form method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">✅ Yes, Delete</button>
+    </form>
+    <a href="{% url 'admin_panel' %}" class="btn btn-secondary">← Cancel</a>
+</div>
+{% endblock %}

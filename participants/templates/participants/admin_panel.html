@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<style>
+    .role-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .role-super {
+        background: linear-gradient(135deg, #FF6B35, #FF8E53);
+        color: white;
+    }
+    .role-checkin {
+        background: linear-gradient(135deg, #4CAF50, #81C784);
+        color: white;
+    }
+    .action-btn {
+        padding: 8px 14px !important;
+        font-size: 0.85rem !important;
+        border-radius: 6px !important;
+        margin: 4px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .log-entry {
+        padding: 16px;
+        border-left: 3px solid var(--orange);
+        background: #fdf9f5;
+        margin-bottom: 12px;
+        border-radius: 0 8px 8px 0;
+    }
+    .log-user {
+        font-weight: 600;
+        color: var(--orange);
+    }
+    .log-time {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: #6c757d;
+    }
+    .empty-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 15px;
+        display: inline-block;
+        color: var(--orange);
+    }
+    @media (max-width: 768px) {
+        .action-btn {
+            width: 100%;
+            margin: 6px 0 !important;
+            justify-content: center;
+        }
+        table, thead, tbody, th, td, tr {
+            display: block;
+        }
+        td {
+            position: relative;
+            padding-left: 50% !important;
+            border: none;
+        }
+        td:before {
+            content: attr(data-label) ": ";
+            position: absolute;
+            left: 10px;
+            width: 45%;
+            padding-right: 10px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+    }
+</style>
+
+<h2 class="page-title" style="display: flex; align-items: center; gap: 12px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+    Admin Management
+</h2>
+
+<!-- Admin Users Card -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+        <h3 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Admin Users
+        </h3>
+        <a href="{% url 'create_admin_user' %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add New Admin
+        </a>
+         <!-- NEW: Upload Excel Button -->
+            <a href="{% url 'import_real_participants' %}" class="btn btn-success" style="display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Upload Participants
+            </a>
+    </div>
+
+    {% if users %}
+    <div style="overflow-x: auto; margin-top: 10px;">
+        <table style="width: 100%; min-width: 600px; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8f9fa;">
+                    <th style="text-align: left; padding: 14px 12px; font-weight: 600;">Username</th>
+                    <th style="text-align: left; padding: 14px 12px; font-weight: 600;">Role</th>
+                    <th style="text-align: left; padding: 14px 12px; font-weight: 600;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td data-label="Username" style="padding: 16px 12px;">{{ user.username }}</td>
+                    <td data-label="Role" style="padding: 16px 12px;">
+                        <span class="role-badge {% if user.is_super_admin %}role-super{% else %}role-checkin{% endif %}">
+                            {{ user.get_role_display }}
+                        </span>
+                    </td>
+                    <td data-label="Actions" style="padding: 16px 12px;">
+                        <a href="{% url 'edit_admin_role' user.id %}" class="btn btn-info action-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                            Edit Role
+                        </a>
+                        <a href="{% url 'reset_admin_password' user.id %}" class="btn btn-warning action-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v4"></path>
+                                <path d="M12 20v4"></path>
+                                <path d="M4.93 4.93l2.83 2.83"></path>
+                                <path d="M16.24 16.24l2.83 2.83"></path>
+                                <path d="M1 12h4"></path>
+                                <path d="M19 12h4"></path>
+                                <path d="M4.93 19.07l2.83-2.83"></path>
+                                <path d="M16.24 7.76l2.83-2.83"></path>
+                                <circle cx="12" cy="12" r="8"></circle>
+                            </svg>
+                            Reset Password
+                        </a>
+                        <a href="{% url 'delete_admin_user' user.id %}" class="btn btn-danger action-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <h3>No Admin Users</h3>
+        <p>Create your first admin user to get started.</p>
+        <a href="{% url 'create_admin_user' %}" class="btn btn-primary" style="margin-top: 15px; display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Admin
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Audit Log Card -->
+<h3 style="margin: 40px 0 20px; color: var(--dark-grey); font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 16 12 10 6 16 2 12"></polyline>
+    </svg>
+    Recent Admin Actions
+</h3>
+<div class="card">
+    {% if logs %}
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+        {% for log in logs %}
+        <div class="log-entry">
+            <div><span class="log-user">{{ log.user.username }}</span> {{ log.action }}</div>
+            <div class="log-time">{{ log.timestamp|date:"M d, Y \a\t H:i" }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polyline points="22 12 18 16 12 10 6 16 2 12"></polyline>
+        </svg>
+        <h3>No Activity Recorded</h3>
+        <p>Admin actions (user creation, role changes, etc.) will appear here in real-time.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

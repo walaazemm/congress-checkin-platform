@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Scan QR Code{% endblock %}
+
+{% block content %}
+<style>
+    .scan-indicator {
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        transition: background 0.3s;
+    }
+    .search-form {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+    }
+    @media (max-width: 600px) {
+        .search-form {
+            flex-direction: column;
+        }
+        .search-form button {
+            width: 100%;
+        }
+    }
+</style>
+
+<div style="max-width: 700px; margin: 40px auto;">
+    <!-- QR Scan Card -->
+<div class="card" style="text-align: center; padding: 40px 30px;">
+    <!-- Replace CSS QR with your SVG -->
+    <div style="margin: 0 auto 25px; width: 120px; height: 120px;">
+        <img 
+            src="https://res.cloudinary.com/du2obowro/image/upload/v1761708032/QR_ICON_rve1m1.svg" 
+            alt="QR Code Scanner"
+            style="width: 100%; height: 100%; object-fit: contain;"
+        >
+    </div>
+    
+    <h2 class="page-title" style="margin-bottom: 15px; font-size: 1.6rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 3v2"></path>
+            <path d="M12 19v2"></path>
+            <path d="M3 12h2"></path>
+            <path d="M19 12h2"></path>
+        </svg>
+        Scan Participant QR Code
+    </h2>
+        
+        <p style="color: #666; margin-bottom: 30px; font-size: 16px;">
+            Point your QR scanner at the participant's badge.<br>
+            <em>Format: <code>Name|Country</code></em>
+        </p>
+
+        <form method="post" action="{% url 'scan_qr' %}" id="scan-form">
+            {% csrf_token %}
+            <div style="position: relative; margin-bottom: 20px;">
+                <input 
+                    type="text" 
+                    name="qr_data" 
+                    id="qr_input"
+                    placeholder="Scan QR code here..."
+                    autofocus
+                    autocomplete="off"
+                    style="
+                        width: 100%;
+                        padding: 18px 20px 18px 50px;
+                        font-size: 18px;
+                        border: 2px solid #e0e0e0;
+                        border-radius: 12px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        transition: border-color 0.3s;
+                        background: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22><path d=%22M3 3l18 18M21 3L3 21%22/></svg>') no-repeat 16px center;
+                        background-size: 20px;
+                    "
+                >
+                <div class="scan-indicator" id="scan-indicator"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="M4.93 4.93l1.41 1.41"></path>
+                    <path d="M17.66 17.66l1.41 1.41"></path>
+                    <path d="M1 12h2"></path>
+                    <path d="M21 12h2"></path>
+                    <path d="M4.93 19.07l1.41-1.41"></path>
+                    <path d="M17.66 6.34l1.41-1.41"></path>
+                    <circle cx="12" cy="12" r="8"></circle>
+                </svg>
+                Process Participant
+            </button>
+        </form>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <strong>Tip:</strong> Most QR scanners act like a keyboard, they type the code and press Enter automatically (any problem? try manual search below).
+        </div>
+    </div>
+
+    <!-- Manual Search -->
+    <div class="card" style="margin-top: 30px;">
+        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Manual Search (if QR fails)
+        </h3>
+        <form method="get" action="{% url 'search_participant' %}" class="search-form">
+            <input 
+                type="text" 
+                name="q" 
+                placeholder="Search by name or country..."
+                style="flex: 1; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px;"
+            >
+            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Search
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Visual feedback on input
+const input = document.getElementById('qr_input');
+const indicator = document.getElementById('scan-indicator');
+
+input.addEventListener('focus', () => {
+    indicator.style.background = '#4CAF50';
+    input.style.borderColor = '#4CAF50';
+});
+
+input.addEventListener('blur', () => {
+    indicator.style.background = '#e0e0e0';
+    input.style.borderColor = '#e0e0e0';
+});
+
+// Auto-submit on Enter (for scanners)
+input.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('scan-form').submit();
+    }
+});
+</script>
+{% endblock %}

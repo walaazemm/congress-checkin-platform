@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Edit Participant{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 30px auto;">
+    <h2 class="page-title" style="display: flex; align-items: center; gap: 12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+        Edit Participant
+    </h2>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Full Name</label>
+                <input 
+                    type="text" 
+                    name="full_name" 
+                    value="{{ p.full_name }}" 
+                    required
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;"
+                >
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nationality</label>
+                <input 
+                    type="text" 
+                    name="nationality" 
+                    value="{{ p.nationality }}" 
+                    required
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;"
+                >
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+                    <input type="checkbox" name="paid" {% if p.paid %}checked{% endif %} style="margin-right: 8px;">
+                    Payment Status: PAID
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">
+                 Save Changes
+            </button>
+            <a href="{% url 'participants_list' %}" class="btn" style="display: block; text-align: center; margin-top: 15px;">
+                ← Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

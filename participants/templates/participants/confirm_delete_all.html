@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}⚠️ Confirm Delete All Participants{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 30px auto; padding: 25px;">
+    <h2 class="page-title" style="color: #d32f2f; margin-bottom: 20px;">
+        🚨 Delete All Participants?
+    </h2>
+    
+    <p style="margin-bottom: 20px; color: #555;">
+        This action will <strong>permanently delete all {{ total_count }} participants</strong> from the system, including all meal records, payment statuses, and attendance data.
+    </p>
+    
+    <p style="margin-bottom: 20px; font-weight: bold; color: #d32f2f;">
+        ⚠️ This cannot be undone. Please proceed with extreme caution.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <p style="margin-bottom: 12px;">
+            To confirm, please type the exact phrase below:
+        </p>
+        <input 
+            type="text" 
+            name="confirmation" 
+            placeholder="Type 'DELETE ALL' to confirm"
+            style="width: 100%; padding: 10px; margin-bottom: 16px; border: 2px solid #ffcccc; border-radius: 6px; font-size: 1rem;"
+            autocomplete="off"
+        >
+        <div style="display: flex; gap: 12px;">
+            <button type="submit" class="btn btn-danger" style="flex: 1;">
+                🔥 Delete All Participants
+            </button>
+            <a href="{% url 'participants_list' %}" class="btn btn-secondary" style="flex: 1; text-align: center;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Optional: auto-focus input
+document.querySelector('input[name="confirmation"]').focus();
+</script>
+{% endblock %}

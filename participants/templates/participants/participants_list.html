@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% load participant_extras %}
+{% block title %}All Participants{% endblock %}
+
+{% block content %}
+<style>
+    .table-actions a {
+        margin: 0 4px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+    .status-paid { color: #4CAF50; font-weight: bold; }
+    .status-unpaid { color: #d32f2f; font-weight: bold; }
+    
+    /* Table Responsiveness */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 25px;
+    }
+    table {
+        min-width: 800px; /* Ensures readability */
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 12px 14px;
+        font-size: 0.92rem;
+    }
+    @media (max-width: 600px) {
+        th, td {
+            padding: 10px 12px;
+            font-size: 0.875rem;
+        }
+        .page-title {
+            font-size: 1.4rem !important;
+        }
+        .card {
+            padding: 18px !important;
+        }
+    }
+
+    /* Pagination - Mobile Optimized */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin: 25px 0;
+        flex-wrap: wrap;
+        padding: 10px 0;
+    }
+    .pagination a, 
+    .pagination span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 38px;
+        height: 38px;
+        padding: 0 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.92rem;
+        transition: all 0.2s ease;
+        border: 1px solid #e0e0e0;
+    }
+    .pagination a {
+        color: var(--orange);
+        background: white;
+    }
+    .pagination a:hover {
+        background: #fff5f0;
+        border-color: var(--orange);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(255, 107, 53, 0.15);
+    }
+    .pagination .current {
+        background: var(--orange);
+        color: white;
+        border-color: var(--orange);
+        font-weight: 700;
+    }
+    .pagination .ellipsis {
+        color: #999;
+        border: none;
+        background: transparent;
+        cursor: default;
+    }
+
+    /* Mobile: Stack search form */
+    @media (max-width: 600px) {
+        .search-form {
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
+        .search-form > div,
+        .search-form > button,
+        .search-form > a {
+            width: 100% !important;
+            height: auto !important;
+        }
+        .search-form button,
+        .search-form a {
+            justify-content: center !important;
+            padding: 10px !important;
+        }
+    }
+
+    /* Meal Days - Mobile Friendly */
+    @media (max-width: 768px) {
+        .meal-days {
+            gap: 3px !important;
+        }
+        .meal-day {
+            min-width: 28px !important;
+            font-size: 0.65rem !important;
+        }
+        .meal-day-label {
+            font-size: 0.6rem !important;
+        }
+    }
+</style>
+<!-- Title + Add Participant button (Super Admin only) -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2 class="page-title" style="display: flex; align-items: center; gap: 12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        All Participants ({{ participants.paginator.count }})
+     </h2>
+    {% if user.is_super_admin %}
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'add_participant' %}" class="btn btn-primary">➕ Add Participant</a>
+            <a href="{% url 'delete_all_participants' %}" class="btn btn-danger" style="padding: 8px 12px; font-size: 0.9rem;">
+                🗑️ Delete All...
+            </a>
+        </div>
+    {% endif %}
+    
+</div>
+
+<!-- Search Form -->
+<div class="card" style="margin-bottom: 25px;">
+    <form method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: end;">
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 500;">Search Participants</label>
+            <input 
+                type="text" 
+                name="q" 
+                value="{{ query }}" 
+                placeholder="Search by name or country..."
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"
+            >
+        </div>
+        <button type="submit" class="btn btn-primary" style="height: fit-content; padding: 10px 20px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Search
+        </button>
+        <a href="{% url 'participants_list' %}" class="btn" style="height: fit-content; padding: 10px 20px;">
+            Clear
+        </a>
+    </form>
+</div>
+
+<!-- Participants Table -->
+<div class="card table-responsive">
+    {% if participants %}
+    <!-- Bulk Delete Form -->
+    <form method="post" action="{% url 'bulk_delete_participants' %}"
+          onsubmit="return confirm('⚠️ Are you sure you want to delete the selected participants? This cannot be undone.');">
+        {% csrf_token %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8f9fa;">
+                    {% if user.is_super_admin %}
+                    <th style="padding: 12px; text-align: left; width: 40px;">
+                        <input type="checkbox" id="select-all" title="Select all on this page">
+                    </th>
+                    {% endif %}
+                    <th style="padding: 12px; text-align: left;">Name</th>
+                    <th style="padding: 12px; text-align: left;">Nationality</th>
+                    <th style="padding: 12px; text-align: left;">Payment</th>
+                    <th style="padding: 12px; text-align: left;">Present</th>
+                    <th style="padding: 12px; text-align: left;">Meals (B/L)</th>
+                    <th style="padding: 12px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in participants %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    {% if user.is_super_admin %}
+                    <td style="padding: 14px; width: 40px;">
+                        <input type="checkbox" name="selected_ids" value="{{ p.id }}">
+                    </td>
+                    {% endif %}
+                    <td style="padding: 14px;">{{ p.full_name }}</td>
+                    <td style="padding: 14px;">{{ p.nationality }}</td>
+                    <td style="padding: 14px;">
+                        {% if p.free_access %}
+                            <span style="color: #FF6B35; font-weight: bold;">FREE</span>
+                        {% elif p.paid %}
+                            <span class="status-paid">PAID</span>
+                        {% else %}
+                            <span class="status-unpaid">UNPAID</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 14px;">
+                        {% if p.is_present %}✅{% endif %}
+                    </td>
+                    <td style="padding: 14px; font-size: 0.9rem;">
+                        <!-- Your existing meal days code here (unchanged) -->
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                            <!-- Day 1 -->
+<div style="text-align: center; min-width: 30px;">
+    <div style="font-size: 0.7rem; color: #666;">D1</div>
+    <div>
+        <span style="color: {% if p.breakfast_day1 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">B</span>
+        <span style="color: {% if p.lunch_day1 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">L</span>
+    </div>
+</div>
+<!-- Day 2 -->
+<div style="text-align: center; min-width: 30px;">
+    <div style="font-size: 0.7rem; color: #666;">D2</div>
+    <div>
+        <span style="color: {% if p.breakfast_day2 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">B</span>
+        <span style="color: {% if p.lunch_day2 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">L</span>
+    </div>
+</div>
+<!-- Day 3 -->
+<div style="text-align: center; min-width: 30px;">
+    <div style="font-size: 0.7rem; color: #666;">D3</div>
+    <div>
+        <span style="color: {% if p.breakfast_day3 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">B</span>
+        <span style="color: {% if p.lunch_day3 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">L</span>
+    </div>
+</div>
+<!-- Day 4 -->
+<div style="text-align: center; min-width: 30px;">
+    <div style="font-size: 0.7rem; color: #666;">D4</div>
+    <div>
+        <span style="color: {% if p.breakfast_day4 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">B</span>
+        <span style="color: {% if p.lunch_day4 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">L</span>
+    </div>
+</div>
+<!-- Day 5 -->
+<div style="text-align: center; min-width: 30px;">
+    <div style="font-size: 0.7rem; color: #666;">D5</div>
+    <div>
+        <span style="color: {% if p.breakfast_day5 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">B</span>
+        <span style="color: {% if p.lunch_day5 %}#2E7D32{% else %}#d32f2f{% endif %}; font-weight: bold;">L</span>
+    </div>
+</div>
+</div>
+        <td class="table-actions" style="padding: 14px;">
+    <a href="{% url 'participant_detail' p.id %}" class="btn btn-info">View</a>
+    {% if user.is_super_admin %}
+        <a href="{% url 'edit_participant' p.id %}" class="btn btn-warning">Edit</a>
+        <form method="post" action="{% url 'delete_participant' p.id %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('⚠️ Delete {{ p.full_name }}? This cannot be undone.')">
+                Delete
+            </button>
+        </form>
+    {% endif %}
+</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Bulk Delete Button (Super Admin only) -->
+        {% if user.is_super_admin %}
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: right;">
+            <button type="submit" class="btn btn-danger" 
+                    {% if not participants %}disabled{% endif %}>
+                🗑️ Delete Selected
+            </button>
+        </div>
+        {% endif %}
+    </form>
+
+
+<!-- Pagination Controls -->
+{% if participants.has_other_pages %}
+<div class="pagination">
+    <!-- First & Previous -->
+    {% if participants.has_previous %}
+        <a href="?page=1{% if query %}&q={{ query|urlencode }}{% endif %}" title="First Page">&laquo;</a>
+        <a href="?page={{ participants.previous_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}" title="Previous Page">&lsaquo;</a>
+    {% endif %}
+
+    <!-- Page Numbers -->
+    {% for num in participants.paginator.page_range %}
+        {% if participants.number == num %}
+            <span class="current">{{ num }}</span>
+        {% elif num > participants.number|add:'-2' and num < participants.number|add:'2' %}
+            <a href="?page={{ num }}{% if query %}&q={{ query|urlencode }}{% endif %}">{{ num }}</a>
+        {% elif forloop.first or forloop.last %}
+            <a href="?page={{ num }}{% if query %}&q={{ query|urlencode }}{% endif %}">{{ num }}</a>
+        {% elif forloop.counter0 == participants.number|add:'-3' or forloop.counter == participants.number|add:'1' %}
+            <span class="ellipsis">…</span>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Next & Last -->
+    {% if participants.has_next %}
+        <a href="?page={{ participants.next_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}" title="Next Page">&rsaquo;</a>
+        <a href="?page={{ participants.paginator.num_pages }}{% if query %}&q={{ query|urlencode }}{% endif %}" title="Last Page">&raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+    {% else %}
+    <div style="text-align: center; padding: 50px; color: #666;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 20px; color: #ccc;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <h3>No participants found</h3>
+        <p>Try adjusting your search or add new participants.</p>
+    </div>
+    {% endif %}
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('select-all');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('input[name="selected_ids"]');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+    }
+});
+</script>
+{% endblock %}

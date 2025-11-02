@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 20px auto;">
+    <h2 class="page-title" style="display: flex; align-items: center; gap: 12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        Search Results
+    </h2>
+    <p>Showing results for: <strong>{{ query }}</strong></p>
+    
+    {% if participants %}
+        <div style="display: grid; gap: 12px; margin-top: 20px;">
+            {% for p in participants %}
+            <div class="card" style="padding: 16px;">
+                <h3 style="display: flex; align-items: center; gap: 10px; margin: 0 0 12px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    {{ p.full_name }} ({{ p.nationality }})
+                </h3>
+                <p>Status: 
+                    <span style="font-weight: 500; color: {% if p.paid %}#4CAF50{% else %}#d32f2f{% endif %}; display: inline-flex; align-items: center; gap: 6px;">
+                        {% if p.paid %}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            PAID
+                        {% else %}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18"></path>
+                                <path d="M6 6l12 12"></path>
+                            </svg>
+                            UNPAID
+                        {% endif %}
+                    </span>
+                </p>
+                <a href="{% url 'participant_detail' p.id %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="M4.93 4.93l1.41 1.41"></path>
+                        <path d="M17.66 17.66l1.41 1.41"></path>
+                        <path d="M1 12h2"></path>
+                        <path d="M21 12h2"></path>
+                        <path d="M4.93 19.07l1.41-1.41"></path>
+                        <path d="M17.66 6.34l1.41-1.41"></path>
+                        <circle cx="12" cy="12" r="8"></circle>
+                    </svg>
+                    View Details
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <div style="font-size: 48px; margin-bottom: 15px; color: #6c757d;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+            <p>No participants found for "<strong>{{ query }}</strong>".</p>
+        </div>
+    {% endif %}
+    
+    <br>
+    <a href="{% url 'checkin' %}" class="btn" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Scan
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Create Admin{% endblock %}
+
+{% block content %}
+<h2 class="page-title">➕ Create New Admin</h2>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            <label>Username:</label>
+            <input type="text" name="username" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Password:</label>
+            <input type="password" name="password" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Role:</label>
+            <select name="role" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <option value="checkin_admin">Check-in Admin</option>
+                <option value="super_admin">Super Admin</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Admin</button>
+        <a href="{% url 'admin_panel' %}" class="btn">← Cancel</a>
+    </form>
+</div>
+{% endblock %}

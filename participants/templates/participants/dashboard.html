@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Congress{% endblock %}
+
+{% block content %}
+<!-- Dashboard Title -->
+<h2 class="page-title">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+    Live Event Dashboard
+</h2>
+
+<!-- Welcome Banner -->
+<div class="card" style="background: linear-gradient(135deg, #f5f7fa, #e8f5e9); border-left: 4px solid var(--green); margin-bottom: 25px;">
+    <h2 style="margin: 0; font-size: 1.4rem; color: var(--dark-grey);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        Welcome back, <strong>{{ user.username }}</strong>!
+    </h2>
+    <p style="margin: 8px 0 0; color: #666; font-size: 0.95rem;">
+        Here's your congress event overview for today.
+    </p>
+</div>
+
+<!-- Stats Summary -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Total Registered
+        </div>
+        <div class="stat-number stat-total">{{ total }}</div>
+    </div>
+    <div class="stat-card">
+        <div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; color: #4CAF50;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Paid
+        </div>
+        <div class="stat-number stat-paid">{{ paid }}</div>
+    </div>
+    <div class="stat-card">
+        <div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; color: #d32f2f;">
+                <path d="M18 6L6 18"></path>
+                <path d="M6 6l12 12"></path>
+            </svg>
+            Unpaid
+        </div>
+        <div class="stat-number stat-unpaid">{{ unpaid }}</div>
+    </div>
+    <!--Free Access Card -->
+    <div class="stat-card">
+        <div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; color: #1976D2;">
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="M4.93 4.93l1.41 1.41"></path>
+                <path d="M17.66 17.66l1.41 1.41"></path>
+                <path d="M1 12h2"></path>
+                <path d="M21 12h2"></path>
+                <path d="M4.93 19.07l1.41-1.41"></path>
+                <path d="M17.66 6.34l1.41-1.41"></path>
+                <circle cx="12" cy="12" r="8"></circle>
+            </svg>
+            Free Access
+        </div>
+        <div class="stat-number" style="color: #1976D2;">{{ free }}</div>
+    </div>
+    <div class="stat-card">
+        <div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; color: var(--orange);">
+                <path d="M18 8a3 3 0 0 0-3-3 3 3 0 0 0-3 3v4a3 3 0 0 0 3 3 3 3 0 0 0 3-3z"></path>
+                <path d="M6 12a3 3 0 0 0-3-3 3 3 0 0 0-3 3v4a3 3 0 0 0 3 3 3 3 0 0 0 3-3z"></path>
+            </svg>
+            Present
+        </div>
+        <div class="stat-number stat-present">{{ present }}</div>
+    </div>
+    <div class="stat-card">
+        <div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                <path d="M18 8a3 3 0 0 0-3-3 3 3 0 0 0-3 3v4a3 3 0 0 0 3 3 3 3 0 0 0 3-3z"></path>
+                <path d="M6 12a3 3 0 0 0-3-3 3 3 0 0 0-3 3v4a3 3 0 0 0 3 3 3 3 0 0 0 3-3z"></path>
+            </svg>
+            Total Meals
+        </div>
+        <div class="stat-number stat-total">{{ total_meals }}</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="card">
+    <div style="display: grid; grid-template-columns: 1fr; gap: 25px;">
+        <div>
+            <h3 style="margin-bottom: 15px; color: var(--dark-grey);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"></path>
+                    <path d="M12 12v8"></path>
+                    <path d="M6 20h12"></path>
+                </svg>
+                Payment Status
+            </h3>
+            <div class="chart-container" style="height: 240px;">
+                <canvas id="paymentChart"></canvas>
+            </div>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 15px; color: var(--dark-grey);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="M4.93 4.93l1.41 1.41"></path>
+                    <path d="M17.66 17.66l1.41 1.41"></path>
+                    <path d="M1 12h2"></path>
+                    <path d="M21 12h2"></path>
+                    <path d="M4.93 19.07l1.41-1.41"></path>
+                    <path d="M17.66 6.34l1.41-1.41"></path>
+                    <circle cx="12" cy="12" r="8"></circle>
+                </svg>
+                Meals per Day
+            </h3>
+            <div class="chart-container" style="height: 280px;">
+                <canvas id="mealsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meal Table -->
+<div class="card">
+    <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Detailed Meal Tracking
+    </h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Breakfast</th>
+                <th>Lunch</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in meal_data %}
+            <tr>
+                <td>Day {{ item.day }}</td>
+                <td>{{ item.breakfast }}</td>
+                <td>{{ item.lunch }}</td>
+                <td><strong>{{ item.total }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="text-align: center; margin: 25px 0; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+    <a href="{% url 'export_participants' %}" class="btn btn-info" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Export to Excel
+    </a>
+    <button id="ai-report-btn" class="btn btn-success" style="display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"></path>
+            <path d="M19 13h-6a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"></path>
+            <path d="M5 13h6a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z"></path>
+        </svg>
+        Generate AI Report
+    </button>
+</div>
+
+<!-- AI Report Display (Bilingual) -->
+<div id="ai-report" style="display: none; margin-top: 25px;">
+    <!-- English Section -->
+    <div class="ai-report-section" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 3px solid #1976D2;">
+        <h4 style="margin-top: 0; color: #1976D2; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="M4.93 4.93l1.41 1.41"></path>
+                <path d="M17.66 17.66l1.41 1.41"></path>
+                <path d="M1 12h2"></path>
+                <path d="M21 12h2"></path>
+                <path d="M4.93 19.07l1.41-1.41"></path>
+                <path d="M17.66 6.34l1.41-1.41"></path>
+                <circle cx="12" cy="12" r="8"></circle>
+            </svg>
+            English Report
+        </h4>
+        <div id="ai-report-en" style="line-height: 1.6; color: #333;"></div>
+    </div>
+
+    <!-- Divider -->
+    <div style="text-align: center; margin: 15px 0; color: #ccc;">----------</div>
+
+    <!-- Arabic Section -->
+    <div class="ai-report-section" style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-right: 3px solid #2E7D32; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <h4 style="margin-top: 0; color: #2E7D32; display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="M4.93 4.93l1.41 1.41"></path>
+                <path d="M17.66 17.66l1.41 1.41"></path>
+                <path d="M1 12h2"></path>
+                <path d="M21 12h2"></path>
+                <path d="M4.93 19.07l1.41-1.41"></path>
+                <path d="M17.66 6.34l1.41-1.41"></path>
+                <circle cx="12" cy="12" r="8"></circle>
+            </svg>
+            التقرير العربي
+        </h4>
+        <div id="ai-report-ar" style="line-height: 1.8; color: #333;"></div>
+    </div>
+</div>
+<!-- Silent update notice -->
+<div style="text-align: center; margin-top: 15px; color: #6c757d; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v6m0 0v6m0-6h6m-6 0H6"></path>
+        <path d="M21 12.5a9.5 9.5 0 1 1-17.5 0 9.5 9.5 0 0 1 17.5 0z"></path>
+    </svg>
+    Stats update silently every 10 seconds
+</div>
+<script>
+if (typeof window.dashboardInitialized === 'undefined') {
+    window.dashboardInitialized = true;
+
+    // Initialize charts
+    const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+    const paymentChart = new Chart(paymentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Paid', 'Unpaid'],
+            datasets: [{
+                data: [{{ chart_data.paid }}, {{ chart_data.unpaid }}],
+                backgroundColor: ['#4CAF50', '#FF6B35']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    const mealsCtx = document.getElementById('mealsChart').getContext('2d');
+    const mealsChart = new Chart(mealsCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.meal_labels|safe }},
+            datasets: [{
+                label: 'Meals Served',
+                data: {{ chart_data.meal_days|safe }},
+                backgroundColor: '#FF6B35'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Silent auto-update every 10 seconds
+    function fetchAndUpdateStats() {
+        fetch('{% url "dashboard_stats" %}')
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                // Update stat numbers
+                document.querySelector('.stat-total:nth-of-type(1) .stat-number').textContent = data.total;
+                document.querySelector('.stat-paid .stat-number').textContent = data.paid;
+                document.querySelector('.stat-unpaid .stat-number').textContent = data.unpaid;
+                document.querySelector('.stat-present .stat-number').textContent = data.present;
+                
+                // Update total meals (sum of meal_days)
+                const totalMeals = data.meal_days.reduce((a, b) => a + b, 0);
+                document.querySelectorAll('.stat-total .stat-number')[1].textContent = totalMeals;
+
+                // Update charts
+                paymentChart.data.datasets[0].data = [data.paid, data.unpaid];
+                paymentChart.update();
+
+                mealsChart.data.datasets[0].data = data.meal_days;
+                mealsChart.update();
+            })
+            .catch(error => {
+                console.warn('Auto-update failed (offline or server issue):', error);
+            });
+    }
+
+    // Start auto-update
+    setInterval(fetchAndUpdateStats, 10000);
+}
+// AI Report Button (Bilingual)
+document.getElementById('ai-report-btn').addEventListener('click', function() {
+    this.disabled = true;
+    this.textContent = 'Generating...';
+    
+    fetch('{% url "ai_report" %}')
+        .then(r => r.json())
+        .then(data => {
+            const fullText = data.report;
+            
+            // Split by the separator (-----)
+            const parts = fullText.split('-----').map(part => part.trim());
+            
+            if (parts.length >= 2) {
+                // Assume first part = English, second = Arabic
+                document.getElementById('ai-report-en').textContent = parts[0];
+                document.getElementById('ai-report-ar').textContent = parts[1];
+            } else {
+                // Fallback if no separator
+                document.getElementById('ai-report-en').textContent = fullText;
+                document.getElementById('ai-report-ar').textContent = "لم يتم العثور على تقرير عربي.";
+            }
+            
+            document.getElementById('ai-report').style.display = 'block';
+        })
+        .catch(error => {
+            console.warn('AI report failed:', error);
+            document.getElementById('ai-report-en').textContent = "Failed to generate report.";
+            document.getElementById('ai-report-ar').textContent = "فشل في توليد التقرير.";
+            document.getElementById('ai-report').style.display = 'block';
+        })
+        .finally(() => {
+            this.disabled = false;
+            this.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"></path>
+                    <path d="M19 13h-6a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"></path>
+                    <path d="M5 13h6a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z"></path>
+                </svg>
+                Generate AI Report
+            `;
+        });
+});
+</script>
+{% endblock %}
