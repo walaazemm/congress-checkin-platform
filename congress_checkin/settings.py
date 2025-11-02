@@ -24,15 +24,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
-# Security for production
-if not config('DEBUG', default=True, cast=bool):
-    # Allow only your Azure domain
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
-    # Trust Azure's proxy headers
+# Always set ALLOWED_HOSTS (required by Django)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+
+# Security settings for production (DEBUG=False)
+DEBUG = config('DEBUG', default=True, cast=bool)
+
+if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
-    CSRF_TRUSTED_ORIGINS = [f'https://{host.strip()}' for host in ALLOWED_HOSTS if host]
+    # Build CSRF_TRUSTED_ORIGINS from ALLOWED_HOSTS
+    CSRF_TRUSTED_ORIGINS = []
+    for host in ALLOWED_HOSTS:
+        host = host.strip()
+        if host:
+            # Ensure it's a full https:// URL
+            if not host.startswith(('http://', 'https://')):
+                CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
+            else:
+                CSRF_TRUSTED_ORIGINS.append(host)
 
 # Application definition
 
