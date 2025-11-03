@@ -33,6 +33,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [
     os.environ.get('WEBSITE_HOSTNAME', 'congress-checkin.azurewebsites.net'),
     'congress-checkin.azurewebsites.net',
+    'acpp.aetheriumsolutions.systems',
     # more custom domains if needed
 ]
 
@@ -40,6 +41,8 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     'https://' + os.environ.get('WEBSITE_HOSTNAME', 'congress-checkin.azurewebsites.net'),
     'https://congress-checkin.azurewebsites.net',
+    'https://acpp.aetheriumsolutions.systems',
+
     # Add further domains if using custom domains:
     # 'https://your-custom-domain.com',
 ]
