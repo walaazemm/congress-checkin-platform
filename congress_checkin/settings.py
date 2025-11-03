@@ -30,24 +30,22 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 # Security settings for production (DEBUG=False)
 # --- SECURITY SETTINGS ---
+# --- PRODUCTION SECURITY FOR AZURE ---
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-# Always set ALLOWED_HOSTS from env
-raw_hosts = config('ALLOWED_HOSTS', default='')
-ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(',') if host.strip()]
-
 if not DEBUG:
+    # Trust Azure proxy
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
 
-    # Build CSRF_TRUSTED_ORIGINS from ALLOWED_HOSTS → ensures consistency
-    CSRF_TRUSTED_ORIGINS = []
-    for host in ALLOWED_HOSTS:
-        if host:
-            # Force HTTPS for CSRF origins
-            CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
+    # ALLOWED_HOSTS: just hostnames (no scheme)
+    raw_hosts = config('ALLOWED_HOSTS', default='').strip()
+    ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(',') if host.strip()]
 
+    # CSRF_TRUSTED_ORIGINS: full https:// URLs
+    csrf_raw = config('CSRF_TRUSTED_ORIGINS', default='').strip()
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_raw.split(',') if origin.strip()]
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
