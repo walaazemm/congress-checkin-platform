@@ -32,18 +32,16 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 if not DEBUG:
+    # Trust Azure's proxy
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
-    # Build CSRF_TRUSTED_ORIGINS from ALLOWED_HOSTS
-    CSRF_TRUSTED_ORIGINS = []
-    for host in ALLOWED_HOSTS:
-        host = host.strip()
-        if host:
-            # Ensure it's a full https:// URL
-            if not host.startswith(('http://', 'https://')):
-                CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
-            else:
-                CSRF_TRUSTED_ORIGINS.append(host)
+
+    # Load ALLOWED_HOSTS from env
+    ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='').split(',') if host.strip()]
+
+    # Load CSRF_TRUSTED_ORIGINS from env (comma-separated)
+    csrf_raw = config('CSRF_TRUSTED_ORIGINS', default='')
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_raw.split(',') if origin.strip()]
 
 # Application definition
 
