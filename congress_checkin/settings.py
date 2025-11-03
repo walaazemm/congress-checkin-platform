@@ -23,31 +23,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 
-# Always set ALLOWED_HOSTS (required by Django)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
-
-# Security settings for production (DEBUG=False)
 # --- SECURITY SETTINGS ---
 # --- PRODUCTION SECURITY FOR AZURE ---
+
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-# Always define ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS
+# --- Hosts ---
 raw_hosts = config('ALLOWED_HOSTS', default='').strip()
 ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(',') if host.strip()]
 
+# --- CSRF Trusted Origins ---
 csrf_raw = config('CSRF_TRUSTED_ORIGINS', default='').strip()
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_raw.split(',') if origin.strip()]
 
-if not DEBUG:
-    # Trust Azure proxy headers (important for https detection)
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    USE_X_FORWARDED_HOST = True
+# --- Azure Reverse Proxy Handling ---
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
-    # Force HTTPS in production
+# --- HTTPS / Cookies ---
+if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+# Optional: Django 5+ strict origin checking
+CSRF_TRUSTED_ORIGINS += [
+    'https://congress-checkin.azurewebsites.net',
+    'https://acpp.aetheriumsolutions.systems',
+]
+
 
 # Application definition
 INSTALLED_APPS = [
