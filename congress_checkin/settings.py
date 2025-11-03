@@ -29,35 +29,24 @@ SECRET_KEY = config('SECRET_KEY')
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 # Security settings for production (DEBUG=False)
+# --- SECURITY SETTINGS ---
+SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
+# Always set ALLOWED_HOSTS from env
+raw_hosts = config('ALLOWED_HOSTS', default='')
+ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(',') if host.strip()]
+
 if not DEBUG:
-    # ✅ Trust Azure reverse proxy
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
 
-    # ✅ Secure cookies under HTTPS
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-
-    # ✅ (Optional but good) Force HTTPS redirects
-    SECURE_SSL_REDIRECT = True
-
-    # ✅ Load allowed hosts from environment
-    ALLOWED_HOSTS = [
-        host.strip()
-        for host in config('ALLOWED_HOSTS', default='').split(',')
-        if host.strip()
-    ]
-
-    # ✅ Load CSRF trusted origins (must include https://)
-    csrf_raw = config('CSRF_TRUSTED_ORIGINS', default='')
-    CSRF_TRUSTED_ORIGINS = [
-        origin.strip()
-        for origin in csrf_raw.split(',')
-        if origin.strip()
-    ]
-
+    # Build CSRF_TRUSTED_ORIGINS from ALLOWED_HOSTS → ensures consistency
+    CSRF_TRUSTED_ORIGINS = []
+    for host in ALLOWED_HOSTS:
+        if host:
+            # Force HTTPS for CSRF origins
+            CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
 
 # Application definition
 INSTALLED_APPS = [
