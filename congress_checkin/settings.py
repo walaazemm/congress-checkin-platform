@@ -25,35 +25,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- SECURITY SETTINGS ---
 # --- PRODUCTION SECURITY FOR AZURE ---
+# Essential base security
+SECRET_KEY = os.environ['SECRET_KEY']
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=True, cast=bool)
+# Hosts: no protocol, just domains!
+ALLOWED_HOSTS = [
+    os.environ.get('WEBSITE_HOSTNAME', 'congress-checkin.azurewebsites.net'),
+    'congress-checkin.azurewebsites.net',
+    # more custom domains if needed
+]
 
-# --- Hosts ---
-raw_hosts = config('ALLOWED_HOSTS', default='').strip()
-ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(',') if host.strip()]
+# CSRF Trusted Origins: full schemes!
+CSRF_TRUSTED_ORIGINS = [
+    'https://' + os.environ.get('WEBSITE_HOSTNAME', 'congress-checkin.azurewebsites.net'),
+    'https://congress-checkin.azurewebsites.net',
+    # Add further domains if using custom domains:
+    # 'https://your-custom-domain.com',
+]
 
-# --- CSRF Trusted Origins ---
-csrf_raw = config('CSRF_TRUSTED_ORIGINS', default='').strip()
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_raw.split(',') if origin.strip()]
-
-# --- Azure Reverse Proxy Handling ---
+# Azure reverse proxy HTTPS fix
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
-# --- HTTPS / Cookies ---
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-# Optional: Django 5+ strict origin checking
-CSRF_TRUSTED_ORIGINS += [
-    'https://congress-checkin.azurewebsites.net',
-    'https://acpp.aetheriumsolutions.systems',
-]
-
-
+# Optional: Django 5+ modern same-site policy for extra CSRF safety
+CSRF_COOKIE_SAMESITE = 'Lax'
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -147,3 +148,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'participants.CustomUser'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# DEBUG info for troubleshooting (REMOVE in production!)
+print("DEBUG:", DEBUG)
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
+print("CSRF_TRUSTED_ORIGINS:", CSRF_TRUSTED_ORIGINS)
