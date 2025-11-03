@@ -32,16 +32,32 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 if not DEBUG:
-    # Trust Azure's proxy
+    # ✅ Trust Azure reverse proxy
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
 
-    # Load ALLOWED_HOSTS from env
-    ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='').split(',') if host.strip()]
+    # ✅ Secure cookies under HTTPS
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
 
-    # Load CSRF_TRUSTED_ORIGINS from env (comma-separated)
+    # ✅ (Optional but good) Force HTTPS redirects
+    SECURE_SSL_REDIRECT = True
+
+    # ✅ Load allowed hosts from environment
+    ALLOWED_HOSTS = [
+        host.strip()
+        for host in config('ALLOWED_HOSTS', default='').split(',')
+        if host.strip()
+    ]
+
+    # ✅ Load CSRF trusted origins (must include https://)
     csrf_raw = config('CSRF_TRUSTED_ORIGINS', default='')
-    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_raw.split(',') if origin.strip()]
+    CSRF_TRUSTED_ORIGINS = [
+        origin.strip()
+        for origin in csrf_raw.split(',')
+        if origin.strip()
+    ]
+
 
 # Application definition
 INSTALLED_APPS = [
